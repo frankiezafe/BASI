@@ -161,16 +161,20 @@ public class CameraOpengl extends PApplet {
 		
 	}
 	
-	public void drawCubes( PGraphics pg, float scale ) {
+	public void drawCubes( PGraphics pg, float weight, float height, float dimension) {
 		
 		pg.pushMatrix();
 			//pg.stroke( 0, 255, 255 );
 			pg.fill( 255 );
-			pg.box( 50 * scale );
+			pg.box( 42 * weight, (float) 100.5 * height, (float) 41 * dimension );
+			pg.pushMatrix();
+			pg.translate( -110, 35, -35 );
+			pg.box( 92, 31, 31 );
+			pg.popMatrix();
 			//pg.rotateX( frameCount * 0.001f );
 			//pg.rotateZ( frameCount * 0.0015f );
 			pg.noFill();
-			pg.box( 100 * scale );
+			//pg.box( 100 * scale );
 			pg.fill( 255 );
 			/*pg.pushMatrix();
 				pg.translate( 150 * scale, 0, 0 );
@@ -246,7 +250,7 @@ public class CameraOpengl extends PApplet {
 		pg3d.noFill();
 		pg3d.lights();
 		drawAxis( pg3d, 1 );
-		drawCubes( pg3d, 1 );
+		drawCubes( pg3d, 1, 1, 1 );
 		pg3d.endDraw();
 
 		// scene display
@@ -274,7 +278,7 @@ public class CameraOpengl extends PApplet {
 				pgortho.translate( -50, -50 / cam_aspect, 0 );
 				pgortho.rect( 0, 0, 100, 100 / cam_aspect );
 				pgortho.translate( 50, 50 / cam_aspect, 0 );
-				drawCubes( pgortho, orthoratio );
+				drawCubes( pgortho, orthoratio, 1, 1 );
 			pgortho.popMatrix();
 			
 			// eye - center axis
