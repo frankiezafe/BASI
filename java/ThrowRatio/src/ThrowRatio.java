@@ -5,7 +5,6 @@ import java.lang.Enum;
 
 public class ThrowRatio extends PApplet {
 	
-	
 	public static final int RATIO_4_3 = 0;
 	public static final int RATIO_16_9 = 1;
 	public static final int RATIO_16_10 = 2;
