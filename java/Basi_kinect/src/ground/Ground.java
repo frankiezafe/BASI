@@ -5,7 +5,7 @@ import processing.core.*;
 public class Ground implements PConstants{
 	
 	private PApplet parent;
-	private PImage map;
+	private PImage controleimg;
 	private PGraphics tex;
 	private GPoint[] points;
 	private GFace[] faces;
@@ -16,7 +16,7 @@ public class Ground implements PConstants{
 	public Ground(PApplet parent){ //constructeur
 		
 		this.parent = parent;
-		this.map = null;
+		this.controleimg = null;
 		points = null;
 		faces = null;
 		tex = null;
@@ -32,29 +32,29 @@ public class Ground implements PConstants{
 	
 	public void init(String path, int columns, int rows){
 //		map = parent.loadImage(path); 
-		map = context.depthImage();
+		controleimg = context.depthImage();
 		this.cols = columns;
 		this.rows = rows;
 		points = new GPoint[ (columns + 1) * (rows + 1)];
 		faces = new GFace[ columns * rows *2 ];
 		
-		float cellwidth = (map.width - 1) * 1.f / columns;
-		float cellheight = (map.height - 1) * 1.f / rows;
+		float cellwidth = (controleimg.width - 1) * 1.f / columns;
+		float cellheight = (controleimg.height - 1) * 1.f / rows;
 		
-		map.loadPixels();
+		controleimg.loadPixels();
 		int i = 0;
 		int ip = 0;
-		for (float y = 0; y < map.height; y += cellheight){ //permet de faire la colonne y suivante après la ligne x soit fini
-			for (float x = 0; x < map.width; x += cellwidth ){
-				i = (int) (x + PApplet.floor(y) * map.width);
+		for (float y = 0; y < controleimg.height; y += cellheight){ //permet de faire la colonne y suivante après la ligne x soit fini
+			for (float x = 0; x < controleimg.width; x += cellwidth ){
+				i = (int) (x + PApplet.floor(y) * controleimg.width);
 				//System.out.println(x + " / " + y + " / " + ip + " / >>" + i);
 				
 				float px = x;
 				float py = y;
-				float pz = parent.red(map.pixels[i]);
+				float pz = parent.red(controleimg.pixels[i]);
 				
 				points[ip] = new GPoint( px, py, pz,
-						px / map.width, py /map.height, pz / 255);
+						px / controleimg.width, py /controleimg.height, pz / 255);
 				ip++;
 				
 			}
@@ -97,6 +97,7 @@ public class Ground implements PConstants{
 		for ( int i= 0; i<points.length; i++){
 			points[i].setUV(tex.width, tex.height);
 		}
+
 		tex.beginDraw();
 		tex.background(255, 0, 0);
 		tex.noStroke();
@@ -129,24 +130,28 @@ public class Ground implements PConstants{
 	}
 	public void draw() {
 		context.update();
-		map = context.depthImage();
-		map.loadPixels();
-		PVector[] mappoints = context.depthMapRealWorld();
+		controleimg = context.depthImage();
+		controleimg.loadPixels();
+		PVector[] cloud = context.depthMapRealWorld();
 		for ( int i = 0; i < points.length; ++i){
-			int pId = (int)(points[i].u ) + (map.width)* (int)(points[i].v);
-			if  (pId >= map.pixels.length){
-				pId = map.pixels.length -1;
+			int pid = (int)(points[i].u ) + (controleimg.width)* (int)(points[i].v);
+			if  (pid >= controleimg.pixels.length){
+				pid = controleimg.pixels.length -1;
 			}
 //		points[i].z = ((map.pixels[pId] >> 16) & 0xFF)*2;
 //		( ( imap.pixels[ i ] >> 16 ) & 0xFF ) / 255.f;
-			points [i].z = -mappoints[pId].z *0.1f;
+//			points [i].z = cloud[pid].z *0.1f;
+			if ( cloud[pid].z != 0 ) {
+				points [i].set(cloud[pid]);
+				points [i].mult( 0.3f );
+			}
 		}
 		
-		if (map != null) {
+		if (controleimg != null) {
 			parent.pushMatrix();
-			parent.translate(-map.width * 0.5f, -map.height *0.5f, 0);
+			parent.translate(-controleimg.width * 0.5f, -controleimg.height *0.5f, 0);
 			parent.fill(255);
-			parent.image(map, 0, 0);
+//			parent.image(controleimg, 0, 0);
 		
 		if (points != null){
 //			parent.strokeWeight(3);
@@ -162,23 +167,7 @@ public class Ground implements PConstants{
 		}
 		if ( faces != null){
 			
-//			parent.strokeWeight(3);
-//			parent.stroke(255,0,0);
-//			
-//			for (int i =0; i< faces.length; ++i){
-//				
-//				GFace f = faces[i];
-//				parent.point(f.center.x, f.center.y, f.center.z);
-//			}
-//			parent.beginShape( LINE);
-//			for (int i = 0; i < faces.length; ++i) {
-//				GFace f = faces [i];
-//				parent.vertex(f.center.x, f.center.y, f.center.z);
-//				PVector n = new PVector( f.normal);
-//				n.mult(100);
-//				parent.vertex(f.center.x + n.x, f.center.y + n.y, f.center.z + n.z);
-//			}
-//			parent.endShape();
+
 			parent.noStroke();
 			parent.fill(255);
 //			parent.noFill();
@@ -201,7 +190,7 @@ public class Ground implements PConstants{
 	
 	
 	public PImage getMap() {
-		return map;
+		return controleimg;
 	}
 
 
@@ -209,6 +198,7 @@ public class Ground implements PConstants{
 		
 		System.out.println(this);
 		System.out.println(this.parent);
+		
 	}
 
 	public void setHeight( float h) {

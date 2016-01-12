@@ -32,7 +32,9 @@ public class BasiKinect extends PApplet {
 			view_rot.x += 0.001f;
 			view_rot.y += 0.001f;
 			view_rot.z += 0.001f;
-
+		} else {
+			view_rot.x = mouseY * 0.1f;
+			view_rot.y = mouseX * 0.1f;
 		}
 		background(0, 0, 0);
 		lights();
@@ -52,7 +54,7 @@ public class BasiKinect extends PApplet {
 		fill(255);
 		text(frameRate, 10, 25);
 		//image(context.depthImage(), 0, 0, 640, 480);
-
+		
 	}
 
 	public void keyPressed() {
