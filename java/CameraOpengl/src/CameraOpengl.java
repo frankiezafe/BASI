@@ -2,6 +2,7 @@ import processing.controlP5.ControlP5;
 import processing.controlP5.Slider;
 import processing.controlP5.Toggle;
 import processing.core.*;
+import processing.opengl.PGraphicsOpenGL;
 
 public class CameraOpengl extends PApplet {
 
@@ -33,7 +34,7 @@ public class CameraOpengl extends PApplet {
 	private Toggle ui_ortholeft;
 	private Toggle ui_orthotop;
 	
-	private PGraphics pg3d;
+	private PGraphicsOpenGL pg3d;
 	private PGraphics pgortho;
 	private PVector orthoview_trans;
 	private PVector orthoview_rot;
@@ -47,7 +48,7 @@ public class CameraOpengl extends PApplet {
 	
 	public void settings() {
 	
-		size( 800, 600, P3D );
+		size( 1280,720, P3D );
 		ui_eyex = null;
 	
 	}
@@ -56,11 +57,14 @@ public class CameraOpengl extends PApplet {
 
 		fov = 58 * DEG_TO_RAD;
 	    cam_aspect = (float) width / (float) height;
-	    cam_eye.set( 0, 0, ( height / 2.0f ) / ( (float) Math.tan( fov / 2.0f) ) );
-	    cam_center.set( 0, 100, 0 ); //coordonnées du centre;
+	    //cam_eye.set( 0, -50, ( height / 2.0f ) / ( (float) Math.tan( fov / 2.0f) ) );
+	    cam_eye.set( 0, -5, 237 );
+	    cam_center.set( 0, -129, 0 ); //coordonnées du centre;
 	    cam_up.set( 0, 1, 0 ); //rotation de la caméra
-	    cam_near = cam_eye.z / 10.0f;
-	    cam_far = cam_eye.z * 10.0f;
+	    cam_near = 16;
+	    //cam_eye.z / 10.0f;
+	    cam_far = 9; 
+	    //cam_eye.z * 10.0f;
 	    
 		reset_view = 	false;
 	    orbit_theta = 	0;
@@ -86,7 +90,7 @@ public class CameraOpengl extends PApplet {
 	
 	public void setup() {
 		
-		pg3d = createGraphics( width , height, P3D );
+		pg3d = (PGraphicsOpenGL) createGraphics( width , height, P3D );
 		pgortho = createGraphics( width / 4, height / 4, P3D );
 		
 	    cam_eye = 		new PVector();
@@ -120,7 +124,7 @@ public class CameraOpengl extends PApplet {
 		uiy += 15;
 		ui_centerx = ui.addSlider( cam_center, "center.x", "x", -width, width, uix, uiy, 100, 10 ).setValue( cam_center.x );
 		uiy += 15;
-		ui_centery = ui.addSlider( cam_center, "center.y", "y", -height, height, uix, uiy, 100, 10 ).setValue( cam_center.y );
+		ui_centery = ui.addSlider( cam_center, "center.y", "y", -1500, 0, uix, uiy, 100, 10 ).setValue( cam_center.y );
 		uiy += 25;
 		ui.addLabel( "UP", uix, uiy );
 		uiy += 15;
@@ -134,11 +138,11 @@ public class CameraOpengl extends PApplet {
 		uiy += 15;
 		ui_fov = ui.addSlider( "fov", 0, PI, uix, uiy, 100, 10 ).setValue( fov );
 		uiy += 15;
-		ui_aspect = ui.addSlider( "cam_aspect", 0, 10, uix, uiy, 100, 10 ).setValue( cam_aspect );
+		ui_aspect = ui.addSlider( "cam_aspect", 0, 50, uix, uiy, 100, 10 ).setValue( cam_aspect );
 		uiy += 15;
-		ui_near = ui.addSlider( "cam_near", 0.1f, 500, uix, uiy, 100, 10 ).setValue( cam_near );
+		ui_near = ui.addSlider( "cam_near", 0.1f, 50, uix, uiy, 100, 10 ).setValue( cam_near );
 		uiy += 15;
-		ui_far = ui.addSlider( "cam_far", 0, 10000, uix, uiy, 100, 10 ).setValue( cam_far );
+		ui_far = ui.addSlider( "cam_far", 0, 50, uix, uiy, 100, 10 ).setValue( cam_far );
 		uiy += 15;
 		ui_resetview = ui.addToggle( "reset_view", uix, uiy, 10, 10 );
 		
@@ -161,41 +165,27 @@ public class CameraOpengl extends PApplet {
 		
 	}
 	
-	public void drawCubes( PGraphics pg, float weight, float height, float dimension) {
+	public void drawCubes( PGraphics pg, float scale ) {
 		
 		pg.pushMatrix();
-			//pg.stroke( 0, 255, 255 );
-			pg.fill( 255 );
-			pg.box( 42 * weight, (float) 100.5 * height, (float) 41 * dimension );
-			pg.pushMatrix();
-			pg.translate( -110, 35, -35 );
-			pg.box( 92, 31, 31 );
-			pg.popMatrix();
-			//pg.rotateX( frameCount * 0.001f );
-			//pg.rotateZ( frameCount * 0.0015f );
+			pg.scale( scale, scale, scale );
+			//pg.scale( 10, 10, 10 );
+			
 			pg.noFill();
-			//pg.box( 100 * scale );
-			pg.fill( 255 );
-			/*pg.pushMatrix();
-				pg.translate( 150 * scale, 0, 0 );
-				pg.rotateX( frameCount * -0.004f );
-				pg.box( 100 * scale );
-			pg.popMatrix();
+			
+			//GAUCHE
 			pg.pushMatrix();
-				pg.translate( -150 * scale, 0, 0 );
-				pg.rotateX( frameCount * 0.004f );
-				pg.box( 100 * scale );
+			pg.translate((float) (-55-2), (float) -37.5, (float) -25 );
+			//-17.5 -55, 
+			pg.box( 110, 65, 50 );
 			pg.popMatrix();
+			
 			pg.pushMatrix();
-				pg.translate( 0, 150 * scale, 0 );
-				pg.rotateY( frameCount * -0.004f );
-				pg.box( 100 * scale );
+			pg.translate( (float) (55+30), (float) -51.3, (float) 19.6 );
+			//17.5+37.7
+			pg.box((float) 37.7, (float) 102.6, (float) 39.2 );
 			pg.popMatrix();
-			pg.pushMatrix();
-				pg.translate( 0, -150 * scale, 0 );
-				pg.rotateY( frameCount * 0.004f );
-				pg.box( 100 * scale );
-			pg.popMatrix();*/
+
 		pg.popMatrix();
 		
 	}
@@ -241,16 +231,30 @@ public class CameraOpengl extends PApplet {
 		// 3D view with camera
 		pg3d.beginDraw();
 		pg3d.background( 5 );
+		
+		float P = fov;
+		
+		pg3d.projection.set(
+				P,      0,  	0,      0,
+                0,		P,  	0,      0,
+                0,      0, 		P, 		0,
+                0,      0, 		1,		0
+                );
+		pg3d.projection.translate( cam_eye.x, cam_eye.y, cam_eye.z );
+
+		pg3d.updateProjmodelview();
+		
+		//pg3d.frustum(-cam_near, cam_near, -cam_far+2, cam_far+2, cam_aspect, 10000);
 		pg3d.camera( 
 				cam_eye.x, 		cam_eye.y, 		cam_eye.z, 
 				cam_center.x, 	cam_center.y, 	cam_center.z, 
 				cam_up.x, 		cam_up.y, 		cam_up.z
 		);
-		pg3d.perspective( fov, cam_aspect, cam_near, cam_far );
+		//pg3d.perspective( fov, cam_aspect, cam_near, cam_far );
 		pg3d.noFill();
 		pg3d.lights();
 		drawAxis( pg3d, 1 );
-		drawCubes( pg3d, 1, 1, 1 );
+		drawCubes( pg3d, 1 );
 		pg3d.endDraw();
 
 		// scene display
@@ -278,7 +282,7 @@ public class CameraOpengl extends PApplet {
 				pgortho.translate( -50, -50 / cam_aspect, 0 );
 				pgortho.rect( 0, 0, 100, 100 / cam_aspect );
 				pgortho.translate( 50, 50 / cam_aspect, 0 );
-				drawCubes( pgortho, orthoratio, 1, 1 );
+				drawCubes( pgortho, orthoratio );
 			pgortho.popMatrix();
 			
 			// eye - center axis
@@ -381,7 +385,7 @@ public class CameraOpengl extends PApplet {
 	}
 	
 	public static void main(String args[]) {
-		PApplet.main(new String[] { "CameraOpengl" });
+		PApplet.main(new String[] { "--present", "CameraOpengl" });
 	}
 	
 }
