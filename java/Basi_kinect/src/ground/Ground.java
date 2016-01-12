@@ -4,22 +4,26 @@ import processing.core.*;
 
 public class Ground implements PConstants{
 	
+	public static final float kinectfovH = 58.500004f / 180 * PI; 	//radian
+	public static final float kinectfovV = 45.6f / 180 * PI;		//radian
+	
 	private PApplet parent;
 	private PImage controleimg;
-	private PGraphics tex;
+//	private PGraphics tex;
 	private GPoint[] points;
 	private GFace[] faces;
 	private int cols;
 	private int rows;
 	SimpleOpenNI context;
-	//doit avoir le m�me nom que la classe pour le constructeur
+	//doit avoir le m�me nom que la classe pour le constructeur
+	
 	public Ground(PApplet parent){ //constructeur
 		
 		this.parent = parent;
 		this.controleimg = null;
 		points = null;
 		faces = null;
-		tex = null;
+//		tex = null;
 		cols = 0;
 		rows = 0;
 		System.out.println("nouveau ground" + parent);
@@ -30,8 +34,8 @@ public class Ground implements PConstants{
 	}
 	
 	
-	public void init(String path, int columns, int rows){
-//		map = parent.loadImage(path); 
+	public void init( int columns, int rows ){
+		
 		controleimg = context.depthImage();
 		this.cols = columns;
 		this.rows = rows;
@@ -44,7 +48,7 @@ public class Ground implements PConstants{
 		controleimg.loadPixels();
 		int i = 0;
 		int ip = 0;
-		for (float y = 0; y < controleimg.height; y += cellheight){ //permet de faire la colonne y suivante apr�s la ligne x soit fini
+		for (float y = 0; y < controleimg.height; y += cellheight){ //permet de faire la colonne y suivante apr�s la ligne x soit fini
 			for (float x = 0; x < controleimg.width; x += cellwidth ){
 				i = (int) (x + PApplet.floor(y) * controleimg.width);
 				//System.out.println(x + " / " + y + " / " + ip + " / >>" + i);
@@ -53,14 +57,37 @@ public class Ground implements PConstants{
 				float py = y;
 				float pz = parent.red(controleimg.pixels[i]);
 				
-				points[ip] = new GPoint( px, py, pz,
-						px / controleimg.width, py /controleimg.height, pz / 255);
+				// on met tous les points à 5m
+				// à 5m, il faut que je trouve la position x et y correspondante
+				// h 58.500004°
+				// v 45.6°
+				
+				// x et y en relatif par rapport au centre de l'image [ -0.5, 0.5 ]
+				float relx = ( x - controleimg.width * 0.5f ) / controleimg.width;
+				float rely = ( y - controleimg.height * 0.5f ) / controleimg.height;
+				// angle relatif
+				float anglh = relx * kinectfovH;
+				float anglv = rely * kinectfovV;
+				
+				// on veut Z à 5000
+				float worldx = (float) Math.sin( anglh ) * 5000;
+				float worldy = -(float) Math.sin( anglv ) * 5000;
+				float worldz = 5000;
+				PVector worldp = new PVector( worldx, worldy, worldz );
+				worldp.normalize();
+				
+				points[ip] = new GPoint( 
+					worldx, worldy, worldz, 
+					worldp.x, worldp.y, worldp.z
+				);
+				points[ip].setNormUV( 1 - 0.5f + relx, 0.5f + rely );
+				points[ip].renderUV( controleimg.width * 1.f, controleimg.height * 1.f );
+				
 				ip++;
 				
 			}
 			
 		}
-		//map.updatePixels();
 		int f = 0;
 		int pcols = (columns + 1);
 		for( int r = 0; r < rows; ++r){
@@ -78,72 +105,20 @@ public class Ground implements PConstants{
 		
 	}
 	
-	public void loadTexture (String path1, String path2) {
-		PImage im1 = parent.loadImage(path1);
-		PImage im2 = parent.loadImage(path2);
-		
-		PGraphics pg1 = parent.createGraphics(512,512);
-		pg1.beginDraw();
-		pg1.image(im1, 0, 0, 512, 512);
-		pg1.endDraw();
-		PGraphics pg2 = parent.createGraphics(512,512);
-		pg2.beginDraw();
-		pg2.image(im2, 0, 0, 512, 512);
-		pg2.endDraw();
-		
-		float zswitch = 0.50f;
-		
-		tex = parent.createGraphics(512, 512, P3D);
-		for ( int i= 0; i<points.length; i++){
-			points[i].setUV(tex.width, tex.height);
-		}
-
-		tex.beginDraw();
-		tex.background(255, 0, 0);
-		tex.noStroke();
-		tex.fill(255);
-		tex.beginShape( TRIANGLES);
-		tex.texture(pg1);
-		for (int i =0; i < faces.length; ++i){
-			GFace f = faces[ i ];
-			if (f.normal.z > zswitch){
-				tex.vertex( f.pt1.u, f.pt1.v, 0,f.pt1.u, f.pt1.v);
-				tex.vertex( f.pt2.u, f.pt2.v, 0,f.pt2.u, f.pt2.v);
-				tex.vertex( f.pt3.u, f.pt3.v, 0,f.pt3.u, f.pt3.v);
-			}
-			
-		}
-		tex.endShape();
-		tex.beginShape( TRIANGLES);
-		tex.texture(pg2);
-		for (int i =0; i < faces.length; ++i){
-			GFace f = faces[ i ];
-			if (f.normal.z <= zswitch){
-				tex.vertex( f.pt1.u, f.pt1.v, 0,f.pt1.u, f.pt1.v);
-				tex.vertex( f.pt2.u, f.pt2.v, 0,f.pt2.u, f.pt2.v);
-				tex.vertex( f.pt3.u, f.pt3.v, 0,f.pt3.u, f.pt3.v);
-			}
-			
-		}
-		tex.endShape();
-		tex.endDraw();
-	}
 	public void draw() {
+		
 		context.update();
 		controleimg = context.depthImage();
-		controleimg.loadPixels();
+//		controleimg.loadPixels();
 		PVector[] cloud = context.depthMapRealWorld();
-		for ( int i = 0; i < points.length; ++i){
-			int pid = (int)(points[i].u ) + (controleimg.width)* (int)(points[i].v);
-			if  (pid >= controleimg.pixels.length){
-				pid = controleimg.pixels.length -1;
-			}
-//		points[i].z = ((map.pixels[pId] >> 16) & 0xFF)*2;
-//		( ( imap.pixels[ i ] >> 16 ) & 0xFF ) / 255.f;
-//			points [i].z = cloud[pid].z *0.1f;
-			if ( cloud[pid].z != 0 ) {
-				points [i].set(cloud[pid]);
-				points [i].mult( 0.3f );
+		
+		for ( int i = 0; i < points.length; ++i) {
+			int pid = (int)( points[i].u ) + (controleimg.width)* (int)( points[i].v );
+			PVector realp = cloud[ pid ];
+			if ( realp.z != 0 ) {
+				points[i].set( realp );
+			} else {
+				points[i].reset();
 			}
 		}
 		
@@ -173,7 +148,7 @@ public class Ground implements PConstants{
 //			parent.noFill();
 //			parent.stroke(255,255,255);
 			parent.beginShape( TRIANGLES);
-			if (tex != null) parent.texture( tex );
+			if ( controleimg != null ) parent.texture( controleimg );
 			for (int i =0; i < faces.length; ++i){
 				GFace f = faces[ i ];
 //				parent.fill( parent.abs(f.normal.x) *255, parent.abs(f.normal.y) *255, parent.abs(f.normal.z) *255);

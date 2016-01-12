@@ -17,8 +17,8 @@ public class BasiKinect extends PApplet {
 	public void setup() {
 
 		ground = new Ground(this);
-		ground.init("greymap-smooth.png", 100, 50);
-		ground.loadTexture("textures/grass.jpg", "textures/rock.jpg");
+		ground.init( 100, 50 );
+//		ground.loadTexture("textures/grass.jpg", "textures/rock.jpg");
 		view_rot = new PVector();
 		pause = false;
 		// ground.print();
@@ -28,25 +28,25 @@ public class BasiKinect extends PApplet {
 
 	public void draw() {
 		
-		if (!pause) {
-			view_rot.x += 0.001f;
-			view_rot.y += 0.001f;
-			view_rot.z += 0.001f;
-		} else {
-			view_rot.x = mouseY * 0.1f;
-			view_rot.y = mouseX * 0.1f;
-		}
-		background(0, 0, 0);
+		view_rot.x = mouseY * 0.1f;
+		view_rot.y = mouseX * 0.1f;
+
+		background( 100,100,100 );
 		lights();
 		// mon image doit tourner
 		pushMatrix();
 		translate(width * 0.5f, height * 0.5f, 0);
-		// mettre scale après translate sinon il ne le prend pas en compte
-		scale(0.3f, 0.3f, 0.3f);
+		// mettre scale aprï¿½s translate sinon il ne le prend pas en compte
 		rotateX(view_rot.x);
 		rotateY(view_rot.y);
 		rotateZ(view_rot.z);
-
+		stroke( 255,0,0 );
+		line( 0,0,0, 100,0,0 );
+		stroke( 0,255,0 );
+		line( 0,0,0, 0,100,0 );
+		stroke( 0,0,255 );
+		line( 0,0,0, 0,0,100 );
+		scale(0.1f, 0.1f, 0.1f);
 		ground.draw();
 		popMatrix();
 
