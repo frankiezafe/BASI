@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<camera>
+  <eye centerx="0.0" centery="0.0" centerz="0.0" x="189.43982" y="0.0" z="159.67981"/>
+  <frustum x="0.0" y="-384.88" z="0.0"/>
+  <up x="-0.01999998" y="1.0" z="0.0"/>
+  <fieldofview far="1000.0" fov="0.7079292" near="1.0"/>
+  <offset x="-57.0" y="-33.0" z="-25.0"/>
+</camera>
