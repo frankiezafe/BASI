@@ -24,7 +24,7 @@ public class GPoint  extends PVector {
 	}
 	
 	public void setNormUV( float u, float v ) {
-		normuv = new PVector( u, v );
+		normuv.set( u, v );
 	}
 	
 	public void renderUV(float w, float h) {
@@ -37,5 +37,11 @@ public class GPoint  extends PVector {
 	}
 	public void setX ( float h){
 //		x = norm.x *h;
+	}
+	
+	public void print() {
+		System.out.println(
+				"UV: " +  normuv.x + ", " + normuv.y
+				);
 	}
 }

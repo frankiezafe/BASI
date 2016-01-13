@@ -17,7 +17,7 @@ public class BasiKinect extends PApplet {
 	public void setup() {
 
 		ground = new Ground(this);
-		ground.init( 100, 50 );
+		ground.init( 32*3, 24*3 );
 //		ground.loadTexture("textures/grass.jpg", "textures/rock.jpg");
 		view_rot = new PVector();
 		pause = false;
@@ -30,13 +30,17 @@ public class BasiKinect extends PApplet {
 		
 		view_rot.x = mouseY * 0.1f;
 		view_rot.y = mouseX * 0.1f;
-
+//		view_rot.y = PI;
+//		view_rot.x = -0.2f;
+//		view_rot.y = PI - 0.6f;
+//		view_rot.z = 0;
 		background( 100,100,100 );
-		lights();
+//		lights();
+//		pointLight(255,255,255,0,0,-2000);
 		// mon image doit tourner
 		pushMatrix();
 		translate(width * 0.5f, height * 0.5f, 0);
-		// mettre scale aprï¿½s translate sinon il ne le prend pas en compte
+		// mettre scale après translate sinon il ne le prend pas en compte
 		rotateX(view_rot.x);
 		rotateY(view_rot.y);
 		rotateZ(view_rot.z);
@@ -46,7 +50,7 @@ public class BasiKinect extends PApplet {
 		line( 0,0,0, 0,100,0 );
 		stroke( 0,0,255 );
 		line( 0,0,0, 0,0,100 );
-		scale(0.1f, 0.1f, 0.1f);
+//		scale(0.1f, 0.1f, 0.1f);
 		ground.draw();
 		popMatrix();
 
@@ -58,7 +62,12 @@ public class BasiKinect extends PApplet {
 	}
 
 	public void keyPressed() {
-		pause = !pause;
+//		pause = !pause;
+//		if ( keyCode == 88 ) ground.swapx();
+//		else if ( keyCode == 89 ) ground.swapy();
+//		else 
+		System.out.println( keyCode );
+		
 	}
 
 	public static void main(String args[]) {
