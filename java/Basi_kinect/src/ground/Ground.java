@@ -2,16 +2,17 @@ package ground;
 
 import SimpleOpenNI.SimpleOpenNI;
 import processing.core.*;
+import processing.opengl.PGraphicsOpenGL;
 
 public class Ground implements PConstants {
 
 	public static final float kinectfovH = 58.500004f / 180 * PI; // radian
 	public static final float kinectfovV = 45.6f / 180 * PI; // radian
-	public float minz = 1000;
-	public float maxz = 2000;
+	public float minz = 1800;
+	public float maxz = 2846;
 	private PApplet parent;
 	private PImage controleimg;
-	// private PGraphics tex;
+	 private PGraphics tex;
 	private GPoint[] points;
 	private GFace[] faces;
 	private int cols;
@@ -29,7 +30,7 @@ public class Ground implements PConstants {
 		this.controleimg = null;
 		points = null;
 		faces = null;
-		// tex = null;
+		 tex = null;
 		cols = 0;
 		rows = 0;
 		System.out.println("nouveau ground" + parent);
@@ -135,8 +136,8 @@ public class Ground implements PConstants {
 		}
 
 	}
-
-	public void draw() {
+	
+	public void draw( PGraphicsOpenGL pg) {
 
 		context.update();
 		controleimg = context.depthImage();
@@ -151,92 +152,78 @@ public class Ground implements PConstants {
 			if (realp.z < minz) continue;
 			else if (realp.z > maxz) points[i].reset();
 			else points[i].set(realp);
-//			if (realp.z != 0) {
-//				points[i].set(realp);
-//			} else {
-//				points[i].reset();
-//			}
-			// parent.pushMatrix();
-			// parent.translate( points[i].x, points[i].y, points[i].z );
-			// parent.fill( 255,0,0 );
-			// parent.ellipse( 0, 0, 500,500);
-			// parent.fill( 255 );
-			// parent.stroke( 255 );
-			// parent.scale( 20, 20, 20 );
-			// parent.text( "" + points[i].u + " x " + points[i].v, 0, 0 );
-			// parent.popMatrix();
 		}
 		updateFaces();
 		if (controleimg != null) {
 			for (int i = 0; i < faces.length; ++i){
 				faces[i].update();
 			}
-			parent.pushMatrix();
-			parent.rotateZ(PI);
+			pg.pushMatrix();
+			pg.rotateZ(PI);
 			
-			parent.scale(-1, 1, 1);
+			pg.scale(-1, 1, 1);
 			// parent.fill(255);
 			// parent.image(controleimg, 0, 0); //afficher l'image
 
 			if (points != null) {
 				// parent.strokeWeight(3);
 				// parent.stroke( 0, 255, 0);
-				parent.noStroke();
-				for (int i = 0; i < points.length; ++i) {
-					if (points[i] == null) {
-						break;
-					}
-					parent.point(points[i].x, points[i].y, points[i].z);
-				}
+				pg.noStroke();
+//				for (int i = 0; i < points.length; ++i) {
+//					if (points[i] == null) {
+//						break;
+//					}
+//					pg.point(points[i].x, points[i].y, points[i].z);
+//				}
 
 			}
 
 			// mettre à jour les faces
 			if (faces != null) {
 
-				parent.noStroke();
-				parent.fill(255);
-				// parent.noFill();
-				// parent.stroke(255,255,255);
-				parent.noStroke();
-				parent.beginShape(TRIANGLES);
+				pg.noStroke();
+				pg.fill(255,255,255);
+//				 pg.noFill();
+//				 pg.stroke(255,0,0);
+//				pg.noStroke();
+				pg.beginShape(TRIANGLES);
 //				if (controleimg != null)
 //					parent.texture(controleimg);
 				for (int i = 0; i < faces.length; ++i) {
 					GFace f = faces[i];
 					if ( f.center.z > maxz)continue;
 					float w = (f.center.z - minz) / (maxz -minz);
-					parent.fill((1 - w )*255);
+					pg.fill((1 - w )*255);
 //					if (f.pt1.z > 2000 || f.pt2.z > 2000 || f.pt3.z > 2000) continue;
 					// parent.fill( parent.abs(f.normal.x) *255,
 					// parent.abs(f.normal.y) *255, parent.abs(f.normal.z)
 					// *255);
-					parent.vertex(f.pt1.x, f.pt1.y, f.pt1.z, f.pt1.u, f.pt1.v);
-					parent.vertex(f.pt2.x, f.pt2.y, f.pt2.z, f.pt2.u, f.pt2.v);
-					parent.vertex(f.pt3.x, f.pt3.y, f.pt3.z, f.pt3.u, f.pt3.v);
+					pg.vertex(f.pt1.x, f.pt1.y, f.pt1.z, f.pt1.u, f.pt1.v);
+					pg.vertex(f.pt2.x, f.pt2.y, f.pt2.z, f.pt2.u, f.pt2.v);
+					pg.vertex(f.pt3.x, f.pt3.y, f.pt3.z, f.pt3.u, f.pt3.v);
 				}
-				parent.endShape();
+				pg.endShape();
 				
-				parent.stroke(0,255,0);
-				parent.beginShape(LINES);
-				PVector n = new PVector();
-				for (int i = 0; i < faces.length; ++i) {
-					GFace f = faces[i];
-					if ( f.center.z > maxz)continue;
-					parent.vertex(f.center.x, f.center.y, f.center.z );
-					n.set( f.normal );
-					n.mult( 50 );
-					n.add( f.center );
-					parent.vertex(n.x, n.y, n.z );
-					
-				}
-				parent.endShape();
+				pg.stroke(0,255,0);
+//				pg.beginShape(LINES);
+//				PVector n = new PVector();
+//				for (int i = 0; i < faces.length; ++i) {
+//					GFace f = faces[i];
+//					if ( f.center.z > maxz)continue;
+//					pg.vertex(f.center.x, f.center.y, f.center.z );
+//					n.set( f.normal );
+//					n.mult( 50 );
+//					n.add( f.center );
+//					pg.vertex(n.x, n.y, n.z );
+//					
+//				}
+//				pg.endShape();
 
 			}
-			parent.popMatrix();
+			pg.popMatrix();
 		}
 	}
-
+	
 	public PImage getMap() {
 		return controleimg;
 	}
